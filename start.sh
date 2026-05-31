@@ -10,9 +10,6 @@ python -c "import socket; s=socket.socket(socket.AF_INET,socket.SOCK_DGRAM); s.c
 
 cd "$(dirname "$0")"
 
-# Install orjson from Termux repo (pre-compiled for Android — pip can't build it)
-pkg install -y python-orjson 2>/dev/null || true
-
 # Termux ships python3; use the module form so PATH doesn't matter
 python -m pip install -q -r requirements.txt
 
