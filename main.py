@@ -3,15 +3,31 @@ from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 from datetime import datetime, date
 import json
+import logging
+
+from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.triggers.cron import CronTrigger
 
 from database import init_db, get_conn
+from summarizer import process_today_notes
+
+logger = logging.getLogger(__name__)
 
 app = FastAPI(title="Brain Dump")
+_scheduler = BackgroundScheduler()
 
 
 @app.on_event("startup")
 def startup():
     init_db()
+    _scheduler.add_job(process_today_notes, CronTrigger(hour=23, minute=59))
+    _scheduler.start()
+    logger.info("Scheduler started — nightly summary at 23:59")
+
+
+@app.on_event("shutdown")
+def shutdown():
+    _scheduler.shutdown(wait=False)
 
 
 # ---------------------------------------------------------------------------
@@ -94,6 +110,16 @@ def history(q: str = "", limit: int = 30):
             ).fetchall()
 
     return {"results": [dict(r) for r in rows]}
+
+
+# ---------------------------------------------------------------------------
+# POST /api/process — manual trigger for nightly summarizer
+# ---------------------------------------------------------------------------
+
+@app.post("/api/process")
+def process():
+    result = process_today_notes()
+    return result
 
 
 # ---------------------------------------------------------------------------

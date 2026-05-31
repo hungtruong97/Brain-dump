@@ -10,6 +10,9 @@ python -c "import socket; s=socket.socket(socket.AF_INET,socket.SOCK_DGRAM); s.c
 
 cd "$(dirname "$0")"
 
+# orjson (required by anthropic) ships as a pre-compiled Termux package
+pkg install -y python-orjson 2>/dev/null || true
+
 # Termux ships python3; use the module form so PATH doesn't matter
 python -m pip cache purge -q 2>/dev/null || true
 python -m pip install -q -r requirements.txt
