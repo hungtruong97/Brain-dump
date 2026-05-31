@@ -4,11 +4,13 @@
 
 termux-wake-lock
 
-# Show local IP so you can point Tasker at it
+# Show local IP (works without root in Termux)
 echo "Local IP:"
-ip addr show wlan0 | grep 'inet ' | awk '{print $2}' | cut -d/ -f1
+hostname -I | tr ' ' '\n' | grep '192\.'
 
 cd "$(dirname "$0")"
-pip install -q -r requirements.txt
 
-uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+# Termux ships python3; use the module form so PATH doesn't matter
+python -m pip install -q -r requirements.txt
+
+python -m uvicorn main:app --host 0.0.0.0 --port 8000 --reload
