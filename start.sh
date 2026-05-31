@@ -4,9 +4,9 @@
 
 termux-wake-lock
 
-# Show local IP (works without root in Termux)
+# Show local IP using Python (Termux hostname doesn't support -I)
 echo "Local IP:"
-hostname -I | tr ' ' '\n' | grep '192\.'
+python -c "import socket; s=socket.socket(socket.AF_INET,socket.SOCK_DGRAM); s.connect(('8.8.8.8',80)); print(s.getsockname()[0]); s.close()"
 
 cd "$(dirname "$0")"
 
